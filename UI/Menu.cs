@@ -74,23 +74,49 @@ public class Menu
         Console.Write("Описание (опц.): ");
         var desc = Console.ReadLine();
 
-        Console.Write("Дата дедлайна (дд.мм.гггг): ");
-        if (!DateTime.TryParse(Console.ReadLine(), out var date))
+        DateTime dueDate;
+
+        while (true)
         {
-            Console.WriteLine("Неверная дата.");
-            return;
+            Console.Write("Дата дедлайна (дд.мм.гггг): ");
+            var input = Console.ReadLine();
+
+            if (DateTime.TryParse(input, out dueDate))
+            {
+                if (dueDate.Date < DateTime.Today)
+                {
+                    Console.WriteLine("❗ Дата в прошлом. Установим дедлайн на сегодня? (y/n): ");
+                    var confirm = Console.ReadLine();
+                    if (confirm?.ToLower() == "y")
+                    {
+                        dueDate = DateTime.Today;
+                        break;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Повтори ввод.");
+                        continue;
+                    }
+                }
+                break;
+            }
+            else
+            {
+                Console.WriteLine("Некорректный формат даты. Повтори ввод.");
+            }
         }
 
         var item = new TodoItem
         {
             Title = title,
             Description = desc,
-            DueDate = date
+            DueDate = dueDate
         };
 
         _repo.Add(item);
         Console.WriteLine("Задача добавлена.");
     }
+
 
     private void MarkCompleted()
     {
