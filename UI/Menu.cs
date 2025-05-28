@@ -50,7 +50,7 @@ public class Menu
                     await _repo.SaveAsync();
                     return;
                 default:
-                    Console.WriteLine("❌ Неверный выбор. Повтори ввод.");
+                    Console.WriteLine("Неверный выбор. Повтори ввод.");
                     break;
             }
 
@@ -115,7 +115,7 @@ public class Menu
             }
             else
             {
-                Console.WriteLine("❌ Некорректный формат даты. Повтори ввод.");
+                Console.WriteLine("Некорректный формат даты. Повтори ввод.");
             }
         }
 
@@ -127,7 +127,7 @@ public class Menu
         };
 
         _repo.Add(item);
-        Console.WriteLine("✅ Задача добавлена.");
+        Console.WriteLine("Задача добавлена.");
     }
 
     private void MarkCompleted()
@@ -135,19 +135,19 @@ public class Menu
         Console.Write("Введи ID задачи: ");
         if (!Guid.TryParse(Console.ReadLine(), out var id))
         {
-            Console.WriteLine("❌ Неверный ID.");
+            Console.WriteLine("Неверный ID.");
             return;
         }
 
         var task = _repo.FindById(id);
         if (task == null)
         {
-            Console.WriteLine("❌ Задача не найдена.");
+            Console.WriteLine("Задача не найдена.");
             return;
         }
 
         task.IsCompleted = true;
-        Console.WriteLine("✅ Задача отмечена как выполненная.");
+        Console.WriteLine("Задача отмечена как выполненная.");
     }
 
     private void DeleteTask()
@@ -155,19 +155,19 @@ public class Menu
         Console.Write("Введи ID задачи для удаления: ");
         if (!Guid.TryParse(Console.ReadLine(), out var id))
         {
-            Console.WriteLine("❌ Неверный ID.");
+            Console.WriteLine("Неверный ID.");
             return;
         }
 
         var task = _repo.FindById(id);
         if (task == null)
         {
-            Console.WriteLine("❌ Задача не найдена.");
+            Console.WriteLine("Задача не найдена.");
             return;
         }
 
         _repo.Remove(id);
-        Console.WriteLine("🗑️ Задача удалена.");
+        Console.WriteLine("Задача удалена.");
     }
 
     private void SearchTasks()
@@ -177,7 +177,7 @@ public class Menu
 
         if (string.IsNullOrWhiteSpace(keyword))
         {
-            Console.WriteLine("❌ Введена пустая строка.");
+            Console.WriteLine("Введена пустая строка.");
             return;
         }
 
@@ -187,11 +187,11 @@ public class Menu
 
         if (found.Count == 0)
         {
-            Console.WriteLine("🔍 Ничего не найдено.");
+            Console.WriteLine("Ничего не найдено.");
             return;
         }
 
-        Console.WriteLine($"🔍 Найдено {found.Count} задач:");
+        Console.WriteLine($"Найдено {found.Count} задач:");
         foreach (var task in found)
         {
             Console.WriteLine($"{task.Id} | {task}");
