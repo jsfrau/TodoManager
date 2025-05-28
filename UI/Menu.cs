@@ -23,7 +23,9 @@ public class Menu
             Console.WriteLine("1. Показать задачи");
             Console.WriteLine("2. Добавить задачу");
             Console.WriteLine("3. Отметить задачу выполненной");
-            Console.WriteLine("4. Сохранить и выйти");
+            Console.WriteLine("4. Удалить задачу");
+            Console.WriteLine("5. Найти задачу по названию");
+            Console.WriteLine("6. Сохранить и выйти");
             Console.Write("Выбор: ");
             var choice = Console.ReadLine();
 
@@ -39,14 +41,20 @@ public class Menu
                     MarkCompleted();
                     break;
                 case "4":
+                    DeleteTask();
+                    break;
+                case "5":
+                    SearchTasks();
+                    break;
+                case "6":
                     await _repo.SaveAsync();
                     return;
                 default:
-                    Console.WriteLine("Неверный выбор");
+                    Console.WriteLine("❌ Неверный выбор. Повтори ввод.");
                     break;
             }
 
-            Console.WriteLine("\nНажми любую клавишу...");
+            Console.WriteLine("\nНажми любую клавишу для продолжения...");
             Console.ReadKey();
         }
     }
@@ -69,13 +77,18 @@ public class Menu
     private void AddTask()
     {
         Console.Write("Заголовок: ");
-        var title = Console.ReadLine() ?? "";
+        var title = Console.ReadLine()?.Trim();
+
+        if (string.IsNullOrWhiteSpace(title))
+        {
+            Console.WriteLine("❗ Заголовок не может быть пустым.");
+            return;
+        }
 
         Console.Write("Описание (опц.): ");
         var desc = Console.ReadLine();
 
         DateTime dueDate;
-
         while (true)
         {
             Console.Write("Дата дедлайна (дд.мм.гггг): ");
@@ -102,7 +115,7 @@ public class Menu
             }
             else
             {
-                Console.WriteLine("Некорректный формат даты. Повтори ввод.");
+                Console.WriteLine("❌ Некорректный формат даты. Повтори ввод.");
             }
         }
 
@@ -114,27 +127,74 @@ public class Menu
         };
 
         _repo.Add(item);
-        Console.WriteLine("Задача добавлена.");
+        Console.WriteLine("✅ Задача добавлена.");
     }
-
 
     private void MarkCompleted()
     {
         Console.Write("Введи ID задачи: ");
         if (!Guid.TryParse(Console.ReadLine(), out var id))
         {
-            Console.WriteLine("Неверный ID.");
+            Console.WriteLine("❌ Неверный ID.");
             return;
         }
 
         var task = _repo.FindById(id);
         if (task == null)
         {
-            Console.WriteLine("Задача не найдена.");
+            Console.WriteLine("❌ Задача не найдена.");
             return;
         }
 
         task.IsCompleted = true;
-        Console.WriteLine("Задача отмечена как выполненная.");
+        Console.WriteLine("✅ Задача отмечена как выполненная.");
+    }
+
+    private void DeleteTask()
+    {
+        Console.Write("Введи ID задачи для удаления: ");
+        if (!Guid.TryParse(Console.ReadLine(), out var id))
+        {
+            Console.WriteLine("❌ Неверный ID.");
+            return;
+        }
+
+        var task = _repo.FindById(id);
+        if (task == null)
+        {
+            Console.WriteLine("❌ Задача не найдена.");
+            return;
+        }
+
+        _repo.Remove(id);
+        Console.WriteLine("🗑️ Задача удалена.");
+    }
+
+    private void SearchTasks()
+    {
+        Console.Write("Введи часть названия: ");
+        var keyword = Console.ReadLine()?.Trim().ToLower();
+
+        if (string.IsNullOrWhiteSpace(keyword))
+        {
+            Console.WriteLine("❌ Введена пустая строка.");
+            return;
+        }
+
+        var found = _repo.GetAll()
+            .Where(t => t.Title.ToLower().Contains(keyword))
+            .ToList();
+
+        if (found.Count == 0)
+        {
+            Console.WriteLine("🔍 Ничего не найдено.");
+            return;
+        }
+
+        Console.WriteLine($"🔍 Найдено {found.Count} задач:");
+        foreach (var task in found)
+        {
+            Console.WriteLine($"{task.Id} | {task}");
+        }
     }
 }
